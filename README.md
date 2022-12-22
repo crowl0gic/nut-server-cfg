@@ -19,10 +19,12 @@ The "NUT Server" is responsible for shutting down the following in order:
 4. "Router"
 5. "Aux UPS" / "Main UPS" 
 
-Some devices are powered down simultaneously. Delayed shutdowns are used by the router and UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays are set on a per-host basis via /etc/nut/upssched.conf.
+"Aux UPS" is not monitored because it's on the same feed (but different circuit) as "Main UPS." If power to "Main UPS" fails, there's no point in keeping "Aux UPS" on, even if it's still getting power.
+
+Some devices are powered down simultaneously. Delayed shutdowns are used by the router and UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays and customized shutdown routines are set on a per-host basis via /etc/nut/upssched.conf.
 
 ### systemd
-NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface could cause the NUT driver to cycle indefinitely without establishing contact with the device. 
+NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface under v2.7.4 caused the NUT driver to cycle indefinitely without establishing contact with the device.
 
 I recommend using the new systemd integration as it's a significant improvement. Any v2.8.0 binaries you compile will still function with an old v2.7.4 installation for testing purposes.
 
@@ -142,11 +144,11 @@ sudo chmod 750 /bin/upssched-cmd
 sudo chown root:nut /bin/upssched-cmd
 ```
 
-In the `onbatt_shutdown` routine, 
-* I call a script to shut down my router in 30s
-* I shut down the primary UPS (Eaton 5PX) in 60s
-* I shut down an unmonitored auxiliary UPS (also an Eaton 5PX w/ SNMP) in 60s
-* I call `/sbin/upsmon -c fsd` to shutdown the host immediately
+In the `onbatt_shutdown` routine, if 5 minutes have passed:
+* I call a script to shut down my router in 30s and the "Raspberry Pi" immediately
+* I shut down the "Main UPS" in 60s
+* I shut down the "Aux UPS" in 60s
+* I call `/sbin/upsmon -c fsd` to shutdown the "NUT Server" immediately
 
 ### /lib/systemd/system
 These files are generated during the build process and represent the updated NUT systemd configuration:
