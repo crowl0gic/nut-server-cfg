@@ -10,7 +10,7 @@ This repository was created to help others set up their Eaton SNMP UPSes. Despit
 I started out with NUT v2.7.4, but realized that an upgrade was necessary. v2.8.0 has a number of stability / functionality improvements for the SNMP driver and the systemd configuration as a whole. Since I wasn't able to locate an installer package for Debian or Ubuntu (as of 12/2022), I compiled and installed the tarball. I'm pleased to say that everything was straightforward and only minor modifications were needed. The configuration files demonstrate how to gracefully shutdown the NUT host and any client machines that are connected to it, before powering down the UPS itself.
 
 ### systemd
-NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface could cause the NUT driver to cycle indefinitely without ever establishing contact with the device. 
+NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface could cause the NUT driver to cycle indefinitely without establishing contact with the device. 
 
 I recommend using the new systemd integration as it's a significant improvement. Any v2.8.0 binaries you compile will still function with an old v2.7.4 installation for testing purposes.
 
@@ -44,7 +44,7 @@ sudo addgroup --gid 136 nut
 
 #### User
 ```
-sudo adduser --home /var/lib/nut --no-create-home --shell /usr/sbin/nologin --uid=129 --ingroup nut--disabled-password --gecos "" nut
+sudo adduser --home /var/lib/nut --no-create-home --shell /usr/sbin/nologin --uid=129 --ingroup nut --disabled-password --gecos "" nut
 ```
 
 ### Compile NUT
@@ -74,10 +74,9 @@ sudo systemctl enable nut.target
 ```
 
 #### Invoke driver instances with /sbin/upsdrvsvcctl
-Run this once you have device entries defined in /etc/nut/ups.conf
-The configuration files and section provided with this repo should provide a good starting point
+Run this once you have device entries defined in /etc/nut/ups.conf. One or more entries will be configured for your devices. 
 
-One or more entries will be configured for your devices. 
+The configuration files and section provided with this repo should provide a good starting point
 ```
 sudo /sbin/upsdrvsvcctl reconfigure
 ```
@@ -94,22 +93,22 @@ You should now be able to review the status of your UPS device(s) by running `up
 I included the notes I took for each section below
 
 ### /etc/nut/nut.conf
-NUT server contains "MODE=netserver" if other systems will be depending on it for updates
+NUT server contains `MODE=netserver` if other systems will be depending on it for updates
 
 ### /etc/nut/ups.conf
-The `pw` mibs had a couple more working features than `ietf`. For example, `pw` enables you to shut down outlet groups on the Eaton 5PX with `upscmd`. `ietf` enabled a beeper mute command and battery test through `upscmd`, but the latter didn't work. Shutdowns for `ietf` were performed through `upsrw`, while `pw` used `upscmd`. Neither appear to be capable of shutting down the UPS via `/sbin/upsmon -c fsd` or `/lib/nut/snmp-ups -a upsname -k`. `ietf` metrics ( from `upsc uspname`) had some minor inconsistencies. Otherwise, the two mibs are similar.
+The `pw` mibs had a couple more working features than `ietf`. For example, `pw` enables you to shut down outlet groups on the Eaton 5PX with `upscmd`. `ietf` enabled a beeper mute command and battery test through `upscmd`, but the latter didn't work. Shutdowns for `ietf` are performed through `upsrw`, while `pw` uses `upscmd`. Neither appear to be capable of shutting down the UPS via `/sbin/upsmon -c fsd` or `/lib/nut/snmp-ups -a upsname -k`. `ietf` metrics ( from `upsc uspname`) had some minor inconsistencies. Otherwise, the two mibs are similar.
 
 Note 1: You can get a list of available mibs by running `/lib/nut/snmp-ups -a upsname -x mibs=--list`
 
 Note 2: If you're running the updated systemd scripts, changing this file will result in an automatic restart of the driver
 
 ### /etc/nut/upsd.conf
-Enable the LISTEN command, use 0.0.0.0 to enable external addresses. Do not leave this exposed to public networks!
+Enable the `LISTEN` command, use 0.0.0.0 to enable external addresses. Do not leave this exposed to public networks!
 
 ### /etc/nut/upsd.users
 Define users with access to the NUT UPS server
 
-The "slave" user will probably not need access to the `actions` or `instcmds` permissions. You can leave these fields out.
+The "slave" user will probably not need access to the `actions` or `instcmds` permissions. You can leave these fields out for accounts which do not need them.
 
 ### /etc/nut/upsmon.conf
 1. Define which UPS(es) you will be monitoring here
@@ -141,7 +140,7 @@ In the `onbatt_shutdown` routine,
 These files are generated during the build process and represent the updated NUT systemd configuration:
 * nut-driver-enumerator.path
 * nut-driver-enumerator.service
-* nut-driver\@.service
+* nut-driver<i></i>@.service
 * nut-driver.target
 * nut-monitor.service
 * nut-server.service
