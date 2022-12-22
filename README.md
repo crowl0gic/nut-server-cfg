@@ -21,7 +21,7 @@ The "NUT Server" is responsible for shutting down the following in order:
 
 "Aux UPS" is not monitored because it's on the same feed (but different circuit) as "Main UPS." If power to "Main UPS" fails, there's no point in keeping "Aux UPS" on, even if it's still getting power.
 
-Some devices are powered down simultaneously. Delayed shutdowns are used by the router and UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays and customized shutdown routines are set on a per-host basis via /etc/nut/upssched.conf.
+Some devices are powered down simultaneously. Delayed shutdowns are used by the router and UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays are set on a per-host basis via /etc/nut/upssched.conf.
 
 ### systemd
 NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface under v2.7.4 caused the NUT driver to cycle indefinitely without establishing contact with the device.
