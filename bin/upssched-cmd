@@ -11,15 +11,15 @@
 # from your AT lines.
 
 case $1 in
-	onbatt)
+    onbatt)
         wall "UPS is running on battery power! Shutdown in 5 minutes if power is not restored."
         logger -t upssched-cmd "UPS on battery power."
-		;;
-	onpower)
+    ;;
+    onpower)
         wall "Grid power restored."
         logger -t upssched-cmd "UPS on grid power."
-		;;
- 	onbatt_shutdown)
+    ;;
+    onbatt_shutdown)
         wall "Shutting down server, clients, and UPS due to power failure"
         logger -t upssched-cmd "Shutting down due to power failure."
         /opt/nut-scripts/sd.sh # Shut down router and Raspberry Pi 
@@ -28,18 +28,19 @@ case $1 in
         /usr/bin/upscmd -u admin -p <password> -w aux load.off.delay 60          # mib=pw
         /sbin/upsmon -c fsd # Won't shut down UPS on its own.
         # manually calling the load.off.delay command has its advantages 
-		;;
-	# mute_beeper)
-	#	logger -t upssched-cmd "Muting beeper..."
-        #    /usr/bin/upscmd -u admin -p test -w main beeper.mute=1 # only available for mib=ietf
-	#	;;
-        # replace_batt)
-        #    logger -t upssched-cmd "Replace UPS battery"             # only available for mib=ietf
-        #    ;;                                                       # and does not work
-	# upsgone)
-	#	logger -t upssched-cmd "The communication with UPS has been gone for awhile"
-	#	;;
-	*)
-		logger -t upssched-cmd "Unrecognized command: $1"
-		;;
+    ;;
+    # mute_beeper)
+        # logger -t upssched-cmd "Muting beeper..."
+        # /usr/bin/upscmd -u admin -p test -w main beeper.mute=1 # only available for mib=ietf
+    # ;;
+    # replace_batt)
+        # logger -t upssched-cmd "Replace UPS battery"             # only available for mib=ietf
+    # ;;                                                       # and does not work
+    # upsgone)
+        # logger -t upssched-cmd "The communication with UPS has been gone for awhile"
+    # ;;
+    *)
+        logger -t upssched-cmd "Unrecognized command: $1"
+    ;;
 esac
+
