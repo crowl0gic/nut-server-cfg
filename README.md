@@ -4,7 +4,7 @@ For Eaton UPS devices with the M2 network interface (SNMP)
 Tested on Debian Bullseye 11 and Ubuntu 20.04
 
 ## Mandatory Disclaimer
-This repository was created to help others set up their Eaton SNMP UPSes. Despite my best efforts, it should not in any way be considered a production ready implementation. My primary goal was to gain familiarity with NUT and Bash scripts while deploying the software to a handful of client machines. In conclusion, I'm not responsible for anything that goes wrong should you decide to use these deliverables and / or duplicate my efforts. You have been warned...
+This repository was created to help others set up their Eaton SNMP UPSes. Despite my best efforts, it should not in any way be considered a production ready implementation. My primary goal was to gain familiarity with NUT and Bash scripts while deploying the software to a handful of client machines. In conclusion, I'm not responsible for anything that goes wrong should you decide to use these deliverables and / or duplicate my efforts. You have been warned... >:-)
 
 ## Introduction
 I started out with NUT v2.7.4, but realized that an upgrade was necessary. v2.8.0 has a number of stability / functionality improvements for the SNMP driver and the systemd configuration as a whole. Since I wasn't able to locate an installer package for Debian or Ubuntu (as of 12/2022), I compiled and installed the tarball. I'm pleased to say that everything was straightforward and only minor modifications were needed. The configuration files demonstrate how to gracefully shutdown the NUT host and any client machines that are connected to it, before powering down the UPS itself.
@@ -21,7 +21,7 @@ The "NUT Server" is responsible for shutting down the following in order:
 
 "Aux UPS" is not monitored because it's on the same feed (but different circuit) as "Main UPS." If power to "Main UPS" fails, there's no point in keeping "Aux UPS" on, even if it's still getting power.
 
-Some devices are powered down simultaneously. Delayed shutdowns are used by the UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays are set on a per-host basis with timers in /etc/nut/upssched.conf, while customized shutdown routines are in /bin/upssched-cmd.
+Some devices are powered down simultaneously. The UPSes are the last devices to shut down and have a generous delay for safety. The ICX switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays are set on a per-host basis with timers in /etc/nut/upssched.conf, while customized shutdown routines are in /bin/upssched-cmd.
 
 ### systemd
 NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface under v2.7.4 causes the NUT driver to cycle indefinitely without ever establishing contact with the device
@@ -62,7 +62,7 @@ sudo adduser --home /var/lib/nut --no-create-home --shell /usr/sbin/nologin --ui
 ```
 
 ### Compile NUT
-I performed most of my testing on a VM running Debian 11 and my old Lenovo ThinkPad (both x86_64). Although I can't guarantee that this will be the same for your system, everything worked as expected when installing with `sudo make install`, provided that the configuration script parameters and NUT configuration files were good.
+I performed my testing on a VM running Debian 11 and my old Lenovo ThinkPad (both x86_64). Everything worked as expected when installing with `sudo make install`, provided that the configuration script parameters and NUT configuration files are good.
 ```
 make all && make check && sudo make install
 ```
