@@ -9,6 +9,18 @@ This repository was created to help others set up their Eaton SNMP UPSes. Despit
 ## Introduction
 I started out with NUT v2.7.4, but realized that an upgrade was necessary. v2.8.0 has a number of stability / functionality improvements for the SNMP driver and the systemd configuration as a whole. Since I wasn't able to locate an installer package for Debian or Ubuntu (as of 12/2022), I compiled and installed the tarball. I'm pleased to say that everything was straightforward and only minor modifications were needed. The configuration files demonstrate how to gracefully shutdown the NUT host and any client machines that are connected to it, before powering down the UPS itself.
 
+### Layout
+![Network Layout](UPS_Network.png)
+
+The "NUT Server" is responsible for shutting down the following in order:
+1. "Ubuntu Desktop" 
+2. "NAS"
+3. "NUT Server" (itself) / "Raspberry Pi"
+4. "Router"
+5. "Aux UPS" / "Main UPS" 
+
+Some devices are powered down simultaneously. Delayed shutdowns are used by the router and UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays are set on a per-host basis via /etc/nut/upssched.conf.
+
 ### systemd
 NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface could cause the NUT driver to cycle indefinitely without establishing contact with the device. 
 
