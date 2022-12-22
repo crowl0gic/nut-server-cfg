@@ -21,10 +21,10 @@ The "NUT Server" is responsible for shutting down the following in order:
 
 "Aux UPS" is not monitored because it's on the same feed (but different circuit) as "Main UPS." If power to "Main UPS" fails, there's no point in keeping "Aux UPS" on, even if it's still getting power.
 
-Some devices are powered down simultaneously. Delayed shutdowns are used by the router and UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays are set on a per-host basis via /etc/nut/upssched.conf.
+Some devices are powered down simultaneously. Delayed shutdowns are used by the UPSes as a safety buffer. The switches can be safely powered off without a manual shutdown. All devices run the NUT client and maintain contact with the "NUT Server" for updates on when the UPS is operating on battery and when / if grid power returns. Delays are set on a per-host basis with timers in /etc/nut/upssched.conf, while customized shutdown routines are in /bin/upssched-cmd.
 
 ### systemd
-NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface under v2.7.4 caused the NUT driver to cycle indefinitely without establishing contact with the device.
+NUT v2.8.0 comes with extensive scripts (upsdrvsvcctl and nut-driver-enumerator.sh) to manage the UPS drivers within systemd (v2.7.4 had a minimal implementation at best). This is especially important for those of us who run the snmp drivers, as a delayed network interface under v2.7.4 causes the NUT driver to cycle indefinitely without ever establishing contact with the device
 
 I recommend using the new systemd integration as it's a significant improvement. Any v2.8.0 binaries you compile will still function with an old v2.7.4 installation for testing purposes.
 
@@ -62,9 +62,9 @@ sudo adduser --home /var/lib/nut --no-create-home --shell /usr/sbin/nologin --ui
 ```
 
 ### Compile NUT
-If you don't run `make install` as superuser, it will fail. If you are manually copying the files / binaries, you'll need to run this step to link / create the NUT binaries.
+I performed most of my testing on a VM running Debian 11 and my old Lenovo ThinkPad (both x86_64). Although I can't guarantee that this will be the same for your system, everything worked as expected when installing with `sudo make install`, provided that the configuration script parameters and NUT configuration files were good.
 ```
-make all && make check && make install
+make all && make check && sudo make install
 ```
 
 If you choose to install NUT with `sudo make install`, you'll need to establish the state path (/var/run/nut) and enable the systemd services:
@@ -99,7 +99,6 @@ sudo /sbin/upsdrvsvcctl reconfigure
 ```
 sudo systemctl start nut-server
 sudo systemctl start nut-monitor
-
 ```
 You should now be able to review the status of your UPS device(s) by running `upsc upsname`
 
@@ -160,11 +159,6 @@ These files are generated during the build process and represent the updated NUT
 * nut-server.service
 * nut.target
 
-### /lib/systemd/system-shutdow/nutshutdown
-I commented out the single line in this file as it doesn't work with my configuration
+### /lib/systemd/system-shutdown/nutshutdown
+I commented out the single line in this file as it doesn't pertain to the snmp-ups configuration
 
-### /usr/share/nut
-The "cmdvartab" and "driver.list" files are included with the v2.8.0 tarball. These files are referenced by the NUT application. 
-
-### Example installation scripts
-These scripts were written to streamline the process of installing the minimum quantity of files needed by NUT. File ownership and permissions were assigned as needed. I'm not the most well-versed with Bash and wanted to gain some experience, so these scripts could probably use some improvement. If anything, they can be used to confirm where specific files are being installed. I wouldn't expect you to run them on your system!
