@@ -31,11 +31,11 @@ case $1 in
 		;;
 	# mute_beeper)
 	#	logger -t upssched-cmd "Muting beeper..."
-    #    /usr/bin/upscmd -u admin -p test -w main beeper.mute=1 # only available for mib=ietf
+        #    /usr/bin/upscmd -u admin -p test -w main beeper.mute=1 # only available for mib=ietf
 	#	;;
-    # replace_batt)
-    #    logger -t upssched-cmd "Replace UPS battery"             # only available for mib=ietf
-    #    ;;                                                       # and does not work
+        # replace_batt)
+        #    logger -t upssched-cmd "Replace UPS battery"             # only available for mib=ietf
+        #    ;;                                                       # and does not work
 	# upsgone)
 	#	logger -t upssched-cmd "The communication with UPS has been gone for awhile"
 	#	;;
@@ -43,4 +43,3 @@ case $1 in
 		logger -t upssched-cmd "Unrecognized command: $1"
 		;;
 esac
-
