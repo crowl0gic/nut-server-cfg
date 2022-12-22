@@ -149,16 +149,19 @@ In the `onbatt_shutdown` routine, if 5 minutes have passed:
 * I shut down the "Aux UPS" in 60s
 * I call `/sbin/upsmon -c fsd` to shutdown the "NUT Server" immediately
 
-### /lib/systemd/system
-These files are generated during the build process and represent the updated NUT systemd configuration:
-* nut-driver-enumerator.path
-* nut-driver-enumerator.service
-* nut-driver<i></i>@.service
-* nut-driver.target
-* nut-monitor.service
-* nut-server.service
-* nut.target
-
 ### /lib/systemd/system-shutdown/nutshutdown
 I commented out the single line in this file as it doesn't pertain to the snmp-ups configuration
+
+### NUT systemd updates
+These files comprise the updated NUT v2.8.0 systemd configuration. They are not included with this repo
+
+* /sbin/upsdrvsvcctl 
+* /usr/libexec/nut-driver-enumerator.sh
+* /lib/systemd/system/nut-driver-enumerator.path
+* /lib/systemd/system/nut-driver-enumerator.service
+* /lib/systemd/system/nut-driver<i></i>@.service
+* /lib/systemd/system/nut-driver.target
+* /lib/systemd/system/nut-monitor.service
+* /lib/systemd/system/nut-server.service
+* /lib/systemd/system/nut.target
 
