@@ -9,6 +9,12 @@ This repository was created to help others set up their Eaton SNMP UPSes. Despit
 ## Introduction
 I started out with NUT v2.7.4, but realized that an upgrade was necessary. v2.8.0 has a number of stability / functionality improvements for the SNMP driver and the systemd configuration as a whole. Since I wasn't able to locate an installer package for Debian or Ubuntu (as of 12/2022), I compiled and installed the tarball. I'm pleased to say that everything was straightforward and only minor modifications were needed. The configuration files demonstrate how to gracefully shutdown the NUT host and any client machines that are connected to it, before powering down the UPS itself.
 
+### Hardware
+This guide only applies to UPSes running the [Eaton M2 network card](https://www.eaton.com/us/en-us/catalog/backup-power-ups-surge-it-power-distribution/eaton-gigabit-network-card---na.html). The M2 enables SNMP connectivity with various Eaton UPS devices which support it. It complies with the IETF ([RFC 1628](https://datatracker.ietf.org/doc/html/rfc1628)) standard. As of 12/2022, these cards can be obtained new on eBay for around $170 USD. 
+
+### Client
+Please review this document before proceeding to the [NUT Client Config](https://github.com/crowl0gic/nut-client-cfg) repo, as the client interfaces with the server that is described below. 
+
 ### Layout
 ![Network Layout](UPS_Network.png)
 
@@ -90,7 +96,7 @@ sudo systemctl enable nut.target
 #### Invoke driver instances with /sbin/upsdrvsvcctl
 Run this once you have device entries defined in /etc/nut/ups.conf. One or more entries will be configured for your devices. 
 
-The configuration files and section provided with this repo should provide a good starting point
+The configuration files provided with this repo should be a good starting point
 ```
 sudo /sbin/upsdrvsvcctl reconfigure
 ```
@@ -101,6 +107,12 @@ sudo systemctl start nut-server
 sudo systemctl start nut-monitor
 ```
 You should now be able to review the status of your UPS device(s) by running `upsc upsname`
+Available UPS commands can be reviewed with:
+```
+upscmd -l upsname
+upsrw -l upsname
+```
+Outside of some differences in syntax, these programs are interchangeable in function. See the [/etc/nut/ups.conf](#ups.conf) section for an example.
 
 ## Configuring NUT
 I included the notes I took for each section below
@@ -108,6 +120,7 @@ I included the notes I took for each section below
 ### /etc/nut/nut.conf
 NUT server contains `MODE=netserver` if other systems will be depending on it for updates
 
+<a name="ups.conf"></a>
 ### /etc/nut/ups.conf
 The `pw` mibs had a couple more working features than `ietf`. For example, `pw` enables you to shut down outlet groups on the Eaton 5PX with `upscmd`. `ietf` enabled a beeper mute command and battery test through `upscmd`, but the latter didn't work. Shutdowns for `ietf` are performed through `upsrw`, while `pw` uses `upscmd`. Neither appear to be capable of shutting down the UPS via `/sbin/upsmon -c fsd` or `/lib/nut/snmp-ups -a upsname -k`. `ietf` metrics ( from `upsc uspname`) had some minor inconsistencies. Otherwise, the two mibs are similar.
 
@@ -116,7 +129,7 @@ Note 1: You can get a list of available mibs by running `/lib/nut/snmp-ups -a up
 Note 2: If you're running the updated systemd scripts, changing this file will result in an automatic restart of the driver
 
 ### /etc/nut/upsd.conf
-Enable the `LISTEN` command, use 0.0.0.0 to enable external addresses. Do not leave this exposed to public networks!
+Enable the `LISTEN` command, use 0.0.0.0 to enable external addresses. Do not leave this exposed on public networks!
 
 ### /etc/nut/upsd.users
 Define users with access to the NUT UPS server
@@ -134,7 +147,7 @@ Determines what occurs at specific UPS events. Sets the shutdown timer that will
 
 Be sure to uncomment the `CMDSCRIPT` and `PIPEFN` parameters and set appropriate paths
 
-The timer you configure here determines when the server will shutdown. It's important to ensure that your shutdowns are synchronized. 
+The timer you configure here determines when the server will shutdown. It's important to ensure that your shutdowns are synchronized!
 
 ### /bin/upssched-cmd
 May have world readable permissions by default. Mine is set to 750 with read access for the nut group since it contains NUT-specific passwords. 
