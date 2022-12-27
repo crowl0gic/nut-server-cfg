@@ -55,16 +55,9 @@ I used the arguments below for a barebones SNMP build. I removed all extraneous 
 ### Create the "nut" user and group
 A group ("nut") and user ("nut") will need to be created for the service to run if you are bypassing the Debian / Ubuntu package and installing from scratch
 
-Settings copied from user / group created by Debian nut-client package
-
-#### Group
+This command will create both according to the settings used by the offical .deb: 
 ```
-sudo addgroup --gid 136 nut
-```
-
-#### User
-```
-sudo adduser --home /var/lib/nut --no-create-home --shell /usr/sbin/nologin --uid=129 --ingroup nut --disabled-password --gecos "" nut
+sudo useradd -d /var/lib/nut -K UID_MIN=100 -K UID_MAX=199 -K GID_MIN=100 -K GID_MAX=199 -M -U -s /usr/sbin/nologin 
 ```
 
 ### Compile NUT
@@ -74,6 +67,39 @@ make all && make check && sudo make install
 ```
 
 If you choose to install NUT with `sudo make install`, you'll need to establish the state path (/var/run/nut) and enable the systemd services:
+
+#### Binaries
+The NUT server and client installs differ by only 3 binaries (client does not include drivers (snmp-ups in our case), upsdrvctl, or upsd). 
+
+Initially, I installed the official nut-server package then overwrote the binaries to verify that everything worked as expected. You'll need to install the libsnmp40 package. The following files are all you need to get the NUT server running:
+```
+├── bin
+│   ├── upsc
+│   ├── upscmd
+│   ├── upslog
+│   └── upsrw
+├── lib
+│   ├── libnutclient.a
+│   ├── libnutclient.la
+│   ├── libnutclient.so.2.0.0
+│   ├── libnutclientstub.a
+│   ├── libnutclientstub.la
+│   ├── libnutclientstub.so.1.0.0
+│   ├── libupsclient.a
+│   ├── libupsclient.la
+│   ├── libupsclient.so.6.0.0
+│   └── nut
+│       └── snmp-ups
+├── sbin
+│   ├── upsd
+│   ├── upsdrvctl
+│   ├── upsdrvsvcctl
+│   ├── upsmon
+│   └── upssched
+└── usr
+    └── libexec
+        └── nut-driver-enumerator.sh
+```
 
 #### /usr/lib/tmpfiles.d/nut-server.conf
 You can either run `sudo systemd-tmpfiles --create` or restart the system to establish this directory
