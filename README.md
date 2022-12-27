@@ -57,7 +57,7 @@ A group ("nut") and user ("nut") will need to be created for the service to run 
 
 This command will create both according to the settings used by the offical .deb: 
 ```
-sudo useradd -d /var/lib/nut -K UID_MIN=100 -K UID_MAX=199 -K GID_MIN=100 -K GID_MAX=199 -M -U -s /usr/sbin/nologin 
+sudo useradd -d /var/lib/nut -K UID_MIN=100 -K UID_MAX=199 -K GID_MIN=100 -K GID_MAX=199 -M -U -s /usr/sbin/nologin nut
 ```
 
 ### Compile NUT
