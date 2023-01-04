@@ -22,7 +22,8 @@ case $1 in
     onbatt_shutdown)
         wall "Shutting down server, clients, and UPS due to power failure"
         logger -t upssched-cmd "Shutting down due to power failure."
-        /opt/nut-scripts/sd.sh # Shut down router and Raspberry Pi 
+        /opt/nut-scripts/sd.sh
+        # Shut down router, sd.sh is a standard Bash script
         # /usr/bin/upsrw -s ups.timer.shutdown=60 -u admin -p <password> -w main # mib=ietf
         /usr/bin/upscmd -u admin -p <password> -w main load.off.delay 60         # mib=pw
         /usr/bin/upscmd -u admin -p <password> -w aux load.off.delay 60          # mib=pw
