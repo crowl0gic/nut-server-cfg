@@ -7,7 +7,7 @@ Tested on Debian Bullseye 11 and Ubuntu 20.04
 This repository was created to help others set up their Eaton SNMP UPSes. Despite my best efforts, it should not in any way be considered a production ready implementation. My primary goal was to gain familiarity with NUT and Bash scripts while deploying the software to a handful of client machines. In conclusion, I'm not responsible for anything that goes wrong should you decide to use these deliverables and / or duplicate my efforts. You have been warned... >:-)
 
 ## Introduction
-I started out with NUT v2.7.4, but realized that an upgrade was necessary. v2.8.0 has a number of stability / functionality improvements for the SNMP driver and the systemd configuration as a whole. Since I wasn't able to locate an installer package for Debian or Ubuntu (as of 12/2022), I compiled and installed the tarball. I'm pleased to say that everything was straightforward and only minor modifications were needed. The configuration files demonstrate how to gracefully shutdown the NUT host and any client machines that are connected to it, before powering down the UPS itself.
+I started out with NUT v2.7.4, but quickly realized that an upgrade was necessary. v2.8.0 has a number of stability / functionality improvements for the SNMP driver and the systemd configuration as a whole. Since I wasn't able to locate an installer package for Debian or Ubuntu (as of 12/2022), I compiled and installed the tarball. If the Debian system paths are correctly set [before compilation](#configuration), everything should work as expected. The included files demonstrate how to gracefully shutdown the NUT host and any client machines that are connected to it before powering down the UPS itself.
 
 ### Hardware
 This guide only applies to UPSes running the [Eaton M2 network card](https://www.eaton.com/us/en-us/catalog/backup-power-ups-surge-it-power-distribution/eaton-gigabit-network-card---na.html). The M2 enables SNMP connectivity with various Eaton UPS devices which support it. It complies with the IETF ([RFC 1628](https://datatracker.ietf.org/doc/html/rfc1628)) standard. As of 12/2022, these cards can be obtained new on eBay for around $170 USD. 
@@ -19,11 +19,11 @@ Please review this document before proceeding to the [NUT Client Config](https:/
 ![Network Layout](UPS_Network.png)
 
 The "NUT Server" is responsible for shutting down the following in order:
-1. "Ubuntu Desktop" 
-2. "NAS"
-3. "NUT Server" (itself) / "Raspberry Pi"
-4. "Router"
-5. "Aux UPS" / "Main UPS" 
+1. "Ubuntu Desktop" (runs NUT client)
+2. "NAS" (runs NUT client)
+3. "NUT Server" (itself) / "Raspberry Pi" (also runs a NUT client instance)
+4. "Router" (receives shutdown command from /bin/upssched-cmd)
+5. "Aux UPS" / "Main UPS" (receives shutdown command from /bin/upssched-cmd)
 
 "Aux UPS" is not monitored because it's on the same feed (but different circuit) as "Main UPS." If power to "Main UPS" fails, there's no point in keeping "Aux UPS" on, even if it's still getting power.
 
@@ -45,6 +45,7 @@ Everything needed to compile under Debian can be found in these documents:
 * [NUT Config Prereqs](https://github.com/networkupstools/nut/blob/master/docs/config-prereqs.txt) - Install the dependencies outlined in this step first
 * [NUT configuration script parameters](https://github.com/networkupstools/nut/wiki/Building-NUT-on-Debian,-Raspbian-and-Ubuntu) - Review and modify to suit your needs. The parameters I used are included below
 
+<a name="configuration"></a>
 ### My configuration parameters
 I used the arguments below for a barebones SNMP build. I removed all extraneous options. Defining the application paths is essential to ensure compatibility with your distribution. I identified a number of them by trial and error:
 
@@ -55,7 +56,7 @@ I used the arguments below for a barebones SNMP build. I removed all extraneous 
 ### Create the "nut" user and group
 A group ("nut") and user ("nut") will need to be created for the service to run if you are bypassing the Debian / Ubuntu package and installing from scratch
 
-This command will create both according to the settings used by the offical .deb: 
+This command will create both according to the settings used by the offical .deb package: 
 ```
 sudo useradd -d /var/lib/nut -K UID_MIN=100 -K UID_MAX=199 -K GID_MIN=100 -K GID_MAX=199 -M -U -s /usr/sbin/nologin nut
 ```
