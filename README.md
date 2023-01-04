@@ -9,7 +9,7 @@ This repository was created to help others set up their Eaton SNMP UPSes. Despit
 ## Introduction
 I started out with NUT v2.7.4, but quickly realized that an upgrade was necessary. v2.8.0 has a number of stability / functionality improvements for the SNMP driver and the systemd configuration as a whole. Since I wasn't able to locate an installer package for Debian or Ubuntu (as of 12/2022), I compiled and installed the tarball. If the Debian system paths are correctly set [before compilation](#configuration), everything should work as expected. The included files demonstrate how to gracefully shutdown the NUT host and any client machines that are connected to it before powering down the UPS itself.
 
-The NUT project is exceptionally well documented and its contributors are friendly and responsive.
+The NUT project is exceptionally well documented, so you probably won't need to scrounge through old mailing list posts for examples of how to use obscure features. If you notice an issue, post it on the [NUT repo](https://github.com/networkupstools/nut). I found the developers and contributors to be friendly and responsive.
 
 ### Hardware
 This guide only applies to UPSes running the [Eaton M2 network card](https://www.eaton.com/us/en-us/catalog/backup-power-ups-surge-it-power-distribution/eaton-gigabit-network-card---na.html). The M2 enables SNMP connectivity with various Eaton UPS devices which support it. It complies with the IETF ([RFC 1628](https://datatracker.ietf.org/doc/html/rfc1628)) standard. As of 12/2022, these cards can be obtained new on eBay for around $170 USD. 
